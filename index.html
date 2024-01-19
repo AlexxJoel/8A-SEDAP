@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IMC</title>
+    <link rel="stylesheet" href="css/http_cdn.jsdelivr.net_npm_bootstrap@5.3.2_dist_css_bootstrap.css" type="text/css">
+</head>
+<body>
+
+<div class="container">
+    <h1 class="mt-2">Calcula tu indice de Masa Muscular</h1>
+    <h4>Ingresa los siguientes datos</h4>
+    <p class="p-0 m-0">Nota: El símbolo (<span class="text-danger">*</span>) significa que los campos son obligatorios </p>
+
+    <form>
+        <div class="form">
+            <div class="group">
+                <label for="kilograms" class="fw-bold" >Peso <span class="text-danger">*</span></label><br>
+                <div class="input-group">
+                    <input id="kilograms" class="form-control border-secondary"
+                           placeholder="Ingresa tu peso en kilogramos" type="number" min="0" step="0.01" maxlength="4"
+                           required/>
+                    <span class="input-group-text border-secondary">kgs</span>
+                </div>
+            </div>
+
+            <div class="group">
+                <label for="meters"  class="fw-bold">Altura <span class="text-danger">*</span></label><br>
+                <div class="input-group">
+                    <input id="meters" class="form-control border-secondary" placeholder="Ingresa tu altura en metros"
+                           type="number" step="0.01" min="0" maxlength="4" required/>
+                    <span class="input-group-text border-secondary">m</span>
+                </div>
+            </div>
+            <br>
+            <div>
+                <button class="btn btn-primary" id="btnForm" type="submit" disabled>Calcular</button>
+            </div>
+        </div>
+    </form>
+
+    <hr>
+
+    <h4>Una vez completado el formulario se marcará y se pintará el cuadro donde indique en que rango se encuentra</h4>
+
+    <div class="information">
+        <table class="table" id="table">
+            <tr>
+                <th>Resultado</th>
+                <th>Rango de IMC</th>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Bajo peso</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Normal</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Sobre peso</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>Obesidad</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    console.info("Working...")
+
+    //utilities
+    const colors = Object.freeze({
+        LOW_HEIGHT: "#aaf",
+        NORMAL_HEIGHT: "#afa",
+        OVER_HEIGHT: "#f52",
+        HEAVY_HEIGHT: "#f77",
+    })
+
+    const kilogramsC = document.querySelector("#kilograms")
+    const metersC = document.querySelector("#meters")
+    const btn = document.getElementById('btnForm')
+    const rows = document.getElementById('table').rows
+
+    kilogramsC.addEventListener('keyup', () => disableButton())
+    kilogramsC.addEventListener('blur', () => disableButton())
+    metersC.addEventListener('keyup', () => disableButton())
+    metersC.addEventListener('blur', () => disableButton())
+
+    const paintAndMarkedByPosition = (color, position, result) => {
+        for (let i = 0; i < rows[1].cells.length; i++) rows[position].cells[i].style.backgroundColor = color
+        rows[position].cells[0].innerHTML = `${result}`
+    }
+    const cleanTableColorAndMarker = () => {
+        for (let i = 1; i < rows.length; i++) {
+            for (let j = 0; j < rows[i].cells.length; j++) rows[i].cells[j].style.backgroundColor = "#fff"
+            rows[i].cells[0].innerHTML = ""
+        }
+    }
+
+
+    disableButton = () => {
+       if (validate()) btn.removeAttribute('disabled')
+       else btn.setAttribute('disabled', 'true')
+    }
+
+    const validate = () => {
+        let kg = kilogramsC.value
+        let mt = metersC.value
+
+        if (!kg || !mt) return false
+        if (kg && mt && isNaN(kg) || isNaN(mt)) return false
+        if (mt <= 0 || kg <= 0) return false
+        return true
+
+    }
+
+
+    document.querySelector("form").addEventListener('submit', (e) => {
+        //doesn't load the page whet listener submit
+        e.preventDefault()
+
+        if (!validate()) {
+            alert("Revisa que tus datos sean correctos")
+            return
+        }
+
+        let kg = kilogramsC.value
+        let mt = metersC.value
+
+        //result
+        const imc = kg / (mt * mt)
+        const result = imc.toFixed(2)
+
+
+        cleanTableColorAndMarker()
+
+        if (imc <= 18.4) {
+            paintAndMarkedByPosition(colors.LOW_HEIGHT, 1, result)
+        } else if (imc >= 18.5 && imc <= 24.9) {
+            paintAndMarkedByPosition(colors.NORMAL_HEIGHT, 2, result)
+        } else if (imc >= 25 && imc <= 29.9) {
+            paintAndMarkedByPosition(colors.OVER_HEIGHT, 3, result)
+        } else if (imc >= 30) {
+            paintAndMarkedByPosition(colors.HEAVY_HEIGHT, 4, result)
+        }
+
+    })
+
+
+</script>
+
+</body>
+</html>
